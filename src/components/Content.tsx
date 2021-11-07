@@ -1,3 +1,5 @@
+import { Grid, GridCellRenderer } from 'react-virtualized';
+
 import { MovieCard } from "./MovieCard";
 
 interface ContentProps {
@@ -20,6 +22,19 @@ interface ContentProps {
 }
 
 export function Content({ selectedGenre, movies }: ContentProps) {
+  const cellRenderer: GridCellRenderer = ({ rowIndex, columnIndex, key, style }) => {
+    return (
+      <div key={key} style={style}>
+        <MovieCard 
+          key={movies[rowIndex].imdbID} 
+          title={movies[rowIndex].Title} 
+          poster={movies[rowIndex].Poster} 
+          runtime={movies[rowIndex].Runtime} 
+          rating={movies[rowIndex].Ratings[0].Value} />
+      </div>
+    );
+  }
+
   return (
     <div className="container">
       <header>
@@ -28,9 +43,17 @@ export function Content({ selectedGenre, movies }: ContentProps) {
 
       <main>
         <div className="movies-list">
-          {movies.map(movie => (
-            <MovieCard key={movie.imdbID} title={movie.Title} poster={movie.Poster} runtime={movie.Runtime} rating={movie.Ratings[0].Value} />
-          ))}
+          <Grid
+            cellRenderer={cellRenderer}
+            columnCount={3}
+            columnWidth={250}
+            height={600}
+            rowCount={movies.length}
+            rowHeight={400}
+            width={800}
+            autoContainerWidth
+            overscanRowCount={2}
+          />
         </div>
       </main>
     </div>

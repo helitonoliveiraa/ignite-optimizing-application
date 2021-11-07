@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+
 
 import { SideBar } from './components/SideBar';
 import { Content } from './components/Content';
@@ -37,13 +38,28 @@ export function App() {
 
   useEffect(() => {
     api.get<GenreResponseProps[]>('genres').then(response => {
+
       setGenres(response.data);
     });
   }, []);
 
   useEffect(() => {
     api.get<MovieProps[]>(`movies/?Genre_id=${selectedGenreId}`).then(response => {
-      setMovies(response.data);
+      /**
+       * this forEatch was just made for an example, so don't do this in real application
+       */
+      let multipliedMovies: MovieProps[] = [];
+      
+      response.data.forEach(movie => {
+        for(let i = 0; i < 10; i++) {
+          multipliedMovies.push({
+            ...movie,
+            imdbID: String(Number(movie.imdbID) + i),
+          });
+        }
+      }); 
+
+      setMovies(multipliedMovies);
     });
 
     api.get<GenreResponseProps>(`genres/${selectedGenreId}`).then(response => {
@@ -51,12 +67,12 @@ export function App() {
     })
   }, [selectedGenreId]);
 
-  function handleClickButton(id: number) {
+  const handleClickButton = useCallback((id: number) => {
     setSelectedGenreId(id);
-  }
+  }, []);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'row' }}>
+    <div style={{ display: 'flex', flexDirection: 'row', height: '100vh' }}>
       <SideBar
         genres={genres}
         selectedGenreId={selectedGenreId}
